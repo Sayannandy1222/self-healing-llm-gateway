@@ -1,45 +1,33 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from app.core.settings import settings
-
-router = APIRouter(tags=["Health"])
-
-
-@router.get("/health", summary="Health Check")
-async def health():
-    """
-    Basic health endpoint.
-    """
-
-    return {
-        "status": "healthy",
-        "service": settings.app_name,
-        "version": settings.app_version,
-    }
+router = APIRouter()
 
 
-@router.get("/ready", summary="Readiness Check")
-async def readiness():
-    """
-    Readiness endpoint.
-
-    Later this will verify:
-    - PostgreSQL
-    - Redis
-    - LLM Providers
-    """
-
-    return {
-        "status": "ready",
-    }
+@router.get("/health")
+async def health() -> JSONResponse:
+    return JSONResponse(
+        {
+            "status": "healthy",
+            "service": "Self-Healing LLM Gateway",
+            "version": "0.1.0",
+        }
+    )
 
 
-@router.get("/live", summary="Liveness Check")
-async def liveness():
-    """
-    Liveness endpoint.
-    """
+@router.get("/ready")
+async def readiness() -> JSONResponse:
+    return JSONResponse(
+        {
+            "status": "ready",
+        }
+    )
 
-    return {
-        "status": "alive",
-    }
+
+@router.get("/live")
+async def liveness() -> JSONResponse:
+    return JSONResponse(
+        {
+            "status": "alive",
+        }
+    )

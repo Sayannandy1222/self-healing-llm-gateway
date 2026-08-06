@@ -1,6 +1,7 @@
 import time
+from collections.abc import Awaitable, Callable
 
-from fastapi import Request
+from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.logging import logger
@@ -8,24 +9,28 @@ from app.core.logging import logger
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """
-    Logs every incoming request together with latency.
+    Logs every HTTP request.
     """
 
-    async def dispatch(self, request: Request, call_next):
-        start_time = time.perf_counter()
+    async def dispatch(
+        self,
+        request: Request,
+        call_next: Callable[[Request], Awaitable[Response]],
+    ) -> Response:
+        start = time.perf_counter()
 
         response = await call_next(request)
 
-        duration = time.perf_counter() - start_time
+        duration = (time.perf_counter() - start) * 1000
 
         logger.info(
-            "http.request",
-            method=request.method,
-            path=request.url.path,
-            status_code=response.status_code,
-            latency_ms=round(duration * 1000, 2),
+            {
+                "event": "http.request",
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+                "latency_ms": round(duration, 2),
+            }
         )
-
-        response.headers["X-Response-Time"] = f"{duration:.4f}s"
 
         return response

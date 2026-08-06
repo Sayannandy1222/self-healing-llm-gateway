@@ -1,14 +1,19 @@
 from abc import ABC, abstractmethod
 
+from app.domain.entities.chat_result import ChatResult
+
 
 class LLMProvider(ABC):
     """
-    Abstract LLM provider.
+    Contract implemented by every LLM provider.
     """
 
     @abstractmethod
-    async def chat(self, prompt: str) -> str:
+    async def chat(
+        self,
+        prompt: str,
+    ) -> ChatResult:
         """
-        Generate a response.
+        Generate a chat completion.
         """
         raise NotImplementedError

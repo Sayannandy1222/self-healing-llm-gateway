@@ -1,9 +1,10 @@
+from app.domain.entities.chat_result import ChatResult
 from app.domain.providers.provider import LLMProvider
 
 
 class ChatService:
     """
-    Chat application service.
+    Coordinates chat interactions.
     """
 
     def __init__(
@@ -12,8 +13,12 @@ class ChatService:
     ) -> None:
         self.provider = provider
 
-    async def chat(
+    async def generate(
         self,
         prompt: str,
-    ) -> str:
+    ) -> ChatResult:
+        """
+        Generate a chat completion.
+        """
+
         return await self.provider.chat(prompt)

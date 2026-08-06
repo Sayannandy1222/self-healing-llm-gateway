@@ -7,7 +7,11 @@ class ApplicationException(Exception):
     Base exception for application-specific errors.
     """
 
-    def __init__(self, message: str, status_code: int = 400):
+    def __init__(
+        self,
+        message: str,
+        status_code: int = 400,
+    ) -> None:
         self.message = message
         self.status_code = status_code
         super().__init__(message)
@@ -15,8 +19,15 @@ class ApplicationException(Exception):
 
 async def application_exception_handler(
     request: Request,
-    exc: ApplicationException,
+    exc: Exception,
 ) -> JSONResponse:
+    """
+    Handle application exceptions.
+    """
+
+    if not isinstance(exc, ApplicationException):
+        raise exc
+
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -30,8 +41,9 @@ async def application_exception_handler(
 
 def register_exception_handlers(app: FastAPI) -> None:
     """
-    Register all custom exception handlers.
+    Register custom exception handlers.
     """
+
     app.add_exception_handler(
         ApplicationException,
         application_exception_handler,

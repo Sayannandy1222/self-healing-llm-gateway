@@ -1,18 +1,112 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
 [project]
 name = "self-healing-llm-gateway"
 version = "0.1.0"
-description = "Enterprise-grade AI gateway."
-requires-python = ">=3.13,<3.14"
+description = "Enterprise-grade AI gateway with provider routing, failover, observability, and resilience."
+readme = "README.md"
+requires-python = ">=3.13"
 
-dependencies = [
-    "asgi-correlation-id>=5.0.1",
-    "fastapi>=0.141.1",
-    "groq>=1.6.0",
-    "pydantic>=2.13.4",
-    "pydantic-settings>=2.14.2",
-    "structlog>=26.1.0",
-    "uvicorn>=0.52.1",
+authors = [
+    { name = "Sayan Nandy" }
 ]
 
-[dependency-groups]
-dev = []
+license = { text = "Proprietary" }
+
+keywords = [
+    "fastapi",
+    "genai",
+    "llm",
+    "groq",
+    "gateway",
+    "observability",
+    "production",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: FastAPI",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.1",
+    "groq>=0.31.0",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.2",
+    "python-dotenv>=1.2.2",
+    "structlog>=26.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=26.5.1",
+    "ruff>=0.16.1",
+    "mypy>=2.3.0",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
+    "pytest-cov>=7.1.0",
+    "httpx>=0.28.1",
+    "pre-commit>=4.6.1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 88
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "F",
+    "I",
+    "UP",
+    "B",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py313"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+warn_unused_configs = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+pretty = true
+exclude = [
+    ".venv",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = [
+    "tests",
+]
+python_files = [
+    "test_*.py",
+]
+addopts = """
+-v
+--cov=app
+--cov-report=term-missing
+"""
+
+[tool.coverage.run]
+branch = true
+source = [
+    "app",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+exclude = ["^tests/"]

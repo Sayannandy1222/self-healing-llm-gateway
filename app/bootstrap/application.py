@@ -6,6 +6,7 @@ from app.core.exceptions import register_exception_handlers
 from app.core.lifespan import lifespan
 from app.core.logging import configure_logging
 from app.core.settings import settings
+from app.middleware.request_context import RequestContextMiddleware
 from app.middleware.request_logging import RequestLoggingMiddleware
 
 
@@ -24,6 +25,8 @@ def create_application() -> FastAPI:
     )
 
     register_exception_handlers(app)
+
+    app.add_middleware(RequestContextMiddleware)
 
     app.add_middleware(RequestLoggingMiddleware)
 

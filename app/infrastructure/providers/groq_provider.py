@@ -1,12 +1,13 @@
 from groq import AsyncGroq
 
 from app.core.settings import settings
+from app.domain.entities.chat_result import ChatResult
 from app.domain.providers.provider import LLMProvider
 
 
 class GroqProvider(LLMProvider):
     """
-    Groq implementation of the LLM provider.
+    Groq implementation of the provider contract.
     """
 
     def __init__(self) -> None:
@@ -17,7 +18,7 @@ class GroqProvider(LLMProvider):
     async def chat(
         self,
         prompt: str,
-    ) -> str:
+    ) -> ChatResult:
 
         response = await self.client.chat.completions.create(
             model=settings.default_model,
@@ -29,4 +30,11 @@ class GroqProvider(LLMProvider):
             ],
         )
 
-        return response.choices[0].message.content
+        message = response.choices[0].message
+
+        return ChatResult(
+            response=message.content or "",
+            provider="groq",
+            model=response.model,
+            finish_reason=response.choices[0].finish_reason,
+        )

@@ -1,19 +1,16 @@
 from fastapi import APIRouter
+from fastapi.responses import JSONResponse
 
-from app.core.settings import settings
-
-router = APIRouter(tags=["Root"])
+router = APIRouter()
 
 
-@router.get("/", summary="Service Status")
-async def root():
-    """
-    Service status endpoint.
-    """
-
-    return {
-        "service": settings.app_name,
-        "version": settings.app_version,
-        "environment": settings.app_environment,
-        "status": "running",
-    }
+@router.get("/")
+async def root() -> JSONResponse:
+    return JSONResponse(
+        {
+            "service": "Self-Healing LLM Gateway",
+            "version": "0.1.0",
+            "environment": "development",
+            "status": "running",
+        }
+    )
