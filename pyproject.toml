@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "self-healing-llm-gateway"
+version = "0.1.0"
+description = "Enterprise-grade AI gateway with provider routing, failover, observability, and resilience."
+readme = "README.md"
+requires-python = ">=3.13"
+
+authors = [
+    { name = "Sayan Nandy" }
+]
+
+license = { text = "Proprietary" }
+
+keywords = [
+    "fastapi",
+    "genai",
+    "llm",
+    "groq",
+    "gateway",
+    "observability",
+    "ai",
+    "production",
+    "platform"
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Framework :: FastAPI",
+    "Operating System :: OS Independent"
+]
+
+dependencies = []
