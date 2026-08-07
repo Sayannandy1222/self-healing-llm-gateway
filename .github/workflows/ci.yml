@@ -6,6 +6,7 @@ on:
       - main
       - develop
       - "feature/**"
+
   pull_request:
     branches:
       - main
@@ -14,6 +15,10 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
     steps:
       - name: Checkout repository
@@ -35,6 +40,7 @@ jobs:
           uv --version
           uv run python --version
           uv run ruff --version
+          uv run ruff format --version
           uv run black --version
           uv run mypy --version
           uv run pytest --version
