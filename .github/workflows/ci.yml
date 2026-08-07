@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - develop
-      - feature/**
+      - "feature/**"
   pull_request:
     branches:
       - main
@@ -28,10 +28,22 @@ jobs:
         uses: astral-sh/setup-uv@v3
 
       - name: Install dependencies
-        run: uv sync --frozen
+        run: uv sync --frozen --extra dev
+
+      - name: Show tool versions
+        run: |
+          uv --version
+          uv run python --version
+          uv run ruff --version
+          uv run black --version
+          uv run mypy --version
+          uv run pytest --version
 
       - name: Ruff
         run: uv run ruff check .
+
+      - name: Ruff Format
+        run: uv run ruff format --check .
 
       - name: Black
         run: uv run black --check .
