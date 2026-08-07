@@ -1,51 +1,55 @@
 from __future__ import annotations
 
-from unittest.mock import AsyncMock
+from unittest.mock import Mock
 
-from app.application.commands.chat_command import ChatCommand
-from app.application.pipeline.chat_pipeline import ChatPipeline
-from app.domain.entities.chat_result import ChatResult
-
-
-class FakeSelector:
-    """
-    Fake provider selector used for testing.
-    """
-
-    def __init__(self, provider: AsyncMock) -> None:
-        self._provider = provider
-
-    def select(self) -> AsyncMock:
-        return self._provider
+from app.application.resolver.provider_selector import ProviderSelector
+from app.infrastructure.registry.provider_registry import ProviderRegistry
+from app.infrastructure.telemetry.health_monitor import HealthMonitor
 
 
-async def test_chat_pipeline_uses_selected_provider() -> None:
-    provider = AsyncMock()
+def test_select_groq_when_healthy() -> None:
+    registry = ProviderRegistry()
+    monitor = HealthMonitor()
 
-    provider.chat.return_value = ChatResult(
-        response="Hello from provider",
-        provider="groq",
-        model="llama-3.3-70b-versatile",
+    groq = Mock(name="groq")
+    gemini = Mock(name="gemini")
+
+    registry.register("groq", groq)
+    registry.register("gemini", gemini)
+
+    monitor.register("groq")
+    monitor.register("gemini")
+
+    selector = ProviderSelector(
+        registry=registry,
+        health_monitor=monitor,
     )
 
-    selector = FakeSelector(provider)
+    provider = selector.select()
 
-    pipeline = ChatPipeline(
-        provider_selector=selector,
+    assert provider is groq
+
+
+def test_select_gemini_when_groq_unhealthy() -> None:
+    registry = ProviderRegistry()
+    monitor = HealthMonitor()
+
+    groq = Mock(name="groq")
+    gemini = Mock(name="gemini")
+
+    registry.register("groq", groq)
+    registry.register("gemini", gemini)
+
+    monitor.register("groq")
+    monitor.register("gemini")
+
+    monitor.mark_unhealthy("groq")
+
+    selector = ProviderSelector(
+        registry=registry,
+        health_monitor=monitor,
     )
 
-    result = await pipeline.execute(
-        ChatCommand(
-            prompt="Hello",
-            model="llama-3.3-70b-versatile",
-            provider="groq",
-        ),
-    )
+    provider = selector.select()
 
-    assert result.response == "Hello from provider"
-    assert result.provider == "groq"
-    assert result.model == "llama-3.3-70b-versatile"
-
-    provider.chat.assert_awaited_once_with(
-        prompt="Hello",
-    )
+    assert provider is gemini
