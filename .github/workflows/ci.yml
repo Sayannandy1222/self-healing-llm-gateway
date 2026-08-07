@@ -40,7 +40,6 @@ jobs:
           uv --version
           uv run python --version
           uv run ruff --version
-          uv run ruff format --version
           uv run black --version
           uv run mypy --version
           uv run pytest --version
