@@ -40,6 +40,7 @@ dependencies = [
     "pydantic-settings>=2.14.2",
     "python-dotenv>=1.2.2",
     "structlog>=26.1.0",
+    "prometheus-client>=0.26.0",
 ]
 
 [project.optional-dependencies]
@@ -70,6 +71,10 @@ select = [
     "B",
 ]
 
+ignore = [
+    "B008",
+]
+
 [tool.black]
 line-length = 88
 target-version = ["py313"]
@@ -85,6 +90,22 @@ pretty = true
 exclude = [
     ".venv",
 ]
+
+[[tool.mypy.overrides]]
+module = [
+    "google",
+    "google.*",
+]
+ignore_missing_imports = true
+follow_imports = "skip"
+
+[[tool.mypy.overrides]]
+module = [
+    "prometheus_client",
+    "prometheus_client.*",
+]
+ignore_missing_imports = true
+follow_imports = "skip"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
