@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from app.application.commands.chat_command import ChatCommand
-from app.application.resolver.provider_resolver import ProviderResolver
+from app.application.resolver.provider_selector import ProviderSelector
 from app.domain.entities.chat_result import ChatResult
 
 
@@ -12,9 +12,9 @@ class ChatPipeline:
 
     def __init__(
         self,
-        resolver: ProviderResolver,
+        provider_selector: ProviderSelector,
     ) -> None:
-        self._resolver = resolver
+        self._provider_selector = provider_selector
 
     async def execute(
         self,
@@ -24,7 +24,7 @@ class ChatPipeline:
         Execute a chat command.
         """
 
-        provider = self._resolver.resolve("groq")
+        provider = self._provider_selector.select()
 
         return await provider.chat(
             prompt=command.prompt,
