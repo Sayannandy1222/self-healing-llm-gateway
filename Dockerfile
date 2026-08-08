@@ -8,9 +8,9 @@ ENV PYTHONUNBUFFERED=1
 COPY pyproject.toml ./
 COPY uv.lock ./
 
-RUN pip install uv
+RUN pip install --no-cache-dir uv
 
-RUN uv sync --frozen
+RUN uv sync --frozen --extra dev
 
 COPY . .
 
@@ -27,11 +27,4 @@ ENV PATH="/app/.venv/bin:$PATH"
 
 EXPOSE 8000
 
-CMD [
-    "uvicorn",
-    "app.main:app",
-    "--host",
-    "0.0.0.0",
-    "--port",
-    "8000"
-]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
