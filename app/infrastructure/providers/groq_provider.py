@@ -1,8 +1,17 @@
+from __future__ import annotations
+
+import time
+
 from groq import AsyncGroq
 
 from app.core.settings import settings
 from app.domain.entities.chat_result import ChatResult
 from app.domain.providers.provider import LLMProvider
+from app.infrastructure.observability.prometheus import (
+    PROVIDER_FAILURE_COUNTER,
+    PROVIDER_LATENCY,
+    PROVIDER_REQUEST_COUNTER,
+)
 
 
 class GroqProvider(LLMProvider):
@@ -19,22 +28,35 @@ class GroqProvider(LLMProvider):
         self,
         prompt: str,
     ) -> ChatResult:
+        start_time = time.perf_counter()
 
-        response = await self.client.chat.completions.create(
-            model=settings.default_model,
-            messages=[
-                {
-                    "role": "user",
-                    "content": prompt,
-                }
-            ],
-        )
+        PROVIDER_REQUEST_COUNTER.labels(provider="groq").inc()
 
-        message = response.choices[0].message
+        try:
+            response = await self.client.chat.completions.create(
+                model=settings.default_model,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": prompt,
+                    }
+                ],
+            )
 
-        return ChatResult(
-            response=message.content or "",
-            provider="groq",
-            model=response.model,
-            finish_reason=response.choices[0].finish_reason,
-        )
+            message = response.choices[0].message
+
+            return ChatResult(
+                response=message.content or "",
+                provider="groq",
+                model=response.model,
+                finish_reason=response.choices[0].finish_reason,
+            )
+
+        except Exception:
+            PROVIDER_FAILURE_COUNTER.labels(provider="groq").inc()
+            raise
+
+        finally:
+            PROVIDER_LATENCY.labels(provider="groq").observe(
+                time.perf_counter() - start_time
+            )
